@@ -1,29 +1,25 @@
 <?php
-    namespace App\Models;
 
-class Listing {
-    public static function all() {
-        return [
-            [
-                'id' => 1, 
-                'title' => 'Listing One',
-                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-            ], 
-            [
-                'id' => 2, 
-                'title' => 'Listing two',
-                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-            ]
-            ];  
-    } 
+namespace App\Models;
 
-    public static function find($id) {
-        $listings = self::all();
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-        foreach($listings as $listing) {
-            if($listing['id'] == $id){
-                return $listing;
-            }
+class Listing extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['title', 'company', 'location', 'website', 'email', 'description', 'tags'];
+
+    public function scopeFilter($query, array $filters) {
+        if($filters['tag'] ?? false){
+            $query->where('tags','like','%'.request('tag').'%');
+        }
+
+        if($filters['search'] ?? false){
+            $query->where('title','like','%'.request('search').'%')
+                ->orWhere('description', 'like', '%' . request('search') . '%')
+                ->orWhere('tags', 'like', '%' . request('search') . '%');
         }
     }
 }
